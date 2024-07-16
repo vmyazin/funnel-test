@@ -1,0 +1,58 @@
+<!-- /views/landing.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Landing Page</title>
+</head>
+<body>
+    <!-- Include header -->
+    <%- include('header') %>
+    <h1>Landing Page</h1>
+    <button onclick="logChoice('InitiateCheckout', 4)">Checkout $4</button>
+    <button onclick="logChoice('InitiateCheckout', 67)">Checkout $67</button>
+    <button onclick="logChoice('InitiateCheckout', 97)">Checkout $97</button>
+    <pre id="pixelCode">
+        &lt;!-- Meta Pixel Code --&gt;
+        &lt;script&gt;
+        !function(f,b,e,v,n,t,s)
+        {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+        n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+        if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+        n.queue=[];t=b.createElement(e);t.async=!0;
+        t.src=v;s=b.getElementsByTagName(e)[0];
+        s.parentNode.insertBefore(t,s)}(window, document,'script',
+        'https://connect.facebook.net/en_US/fbevents.js');
+        fbq('init', '1136894547401469');
+        fbq('track', 'PageView');
+        &lt;/script&gt;
+        &lt;noscript&gt;&lt;img height="1" width="1" style="display:none"
+        src="https://www.facebook.com/tr?id=1136894547401469&ev=PageView&noscript=1"
+        /&gt;&lt;/noscript&gt;
+        &lt;!-- End Meta Pixel Code --&gt;
+    </pre>
+    <button onclick="copyPixelCode()">Copy Pixel Code</button>
+    <script>
+        function logChoice(event, value) {
+            console.log(`User clicked: ${event} with value $${value}`);
+            firePixel(event, value);
+            window.location.href = `/upsell?amount=${value}`;
+        }
+
+        function firePixel(event, value) {
+            fetch(`/fire-pixel?event=${event}&value=${value}`)
+                .then(response => console.log(`Pixel fired: ${event} with value ${value}`))
+                .catch(err => console.error(err));
+            fbq('track', event, { value: value, currency: 'USD' });
+        }
+
+        function copyPixelCode() {
+            const pixelCode = document.getElementById('pixelCode').innerText;
+            navigator.clipboard.writeText(pixelCode).then(() => {
+                alert('Pixel code copied to clipboard');
+            });
+        }
+    </script>
+</body>
+</html>
